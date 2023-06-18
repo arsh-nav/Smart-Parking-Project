@@ -1,0 +1,1430 @@
+[
+    {
+        "id": "a03162c3eeb113f1",
+        "type": "tab",
+        "label": "Smart Parking",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d603d93ede21d383",
+        "type": "inject",
+        "z": "a03162c3eeb113f1",
+        "name": "Sensor-Detection",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "3",
+        "payloadType": "str",
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "46fdd3b55d9023bd"
+            ]
+        ]
+    },
+    {
+        "id": "35f9e59b97c5637d",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set Status",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking1/Status",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 590,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "46fdd3b55d9023bd",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "\nglobal.set(\"count\",0)\nif(msg.payload <= 20){\n    msg.payload = 1;\n\n    return msg;\n}\nif(msg.payload >20){\n    msg.payload = 0\n\n}\n\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 180,
+        "wires": [
+            [
+                "35f9e59b97c5637d",
+                "4a4adcf024df1d49",
+                "c3466873aca180a3",
+                "d753e836b9126038"
+            ]
+        ]
+    },
+    {
+        "id": "4a4adcf024df1d49",
+        "type": "switch",
+        "z": "a03162c3eeb113f1",
+        "name": "Capture License",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 620,
+        "y": 160,
+        "wires": [
+            [
+                "3feb157066a5e5f5"
+            ],
+            [
+                "a707c97dee96f326"
+            ]
+        ]
+    },
+    {
+        "id": "a707c97dee96f326",
+        "type": "http request",
+        "z": "a03162c3eeb113f1",
+        "name": "car 1",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI1yqiV-S2gMh4isD5afz9DLpoDv9khUslUw&usqp=CAU",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 830,
+        "y": 160,
+        "wires": [
+            [
+                "6a4311dcef18f990",
+                "3074ccc13bf368a3"
+            ]
+        ]
+    },
+    {
+        "id": "6a28eb6b6d084730",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "LPN_Parser",
+        "func": "msg.payload = msg.payload.results[0].plate.toUpperCase()\n\nvar date = new Date();\ndate = String(date)\ndate = date.slice(0,-31)\nmsg.LPN = \"Parking 1: Car with license number:\" + msg.payload +\" Parked at \" + date \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1250,
+        "y": 160,
+        "wires": [
+            [
+                "d0159665937b355b",
+                "a50ca2d02f0dfde0",
+                "f17ccf4e422331e6",
+                "59a9bd3c599b5a50"
+            ]
+        ]
+    },
+    {
+        "id": "3feb157066a5e5f5",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking1/License",
+        "method": "set",
+        "value": "Empty",
+        "priority": "msg.priority",
+        "x": 830,
+        "y": 60,
+        "wires": [
+            [
+                "d0159665937b355b"
+            ]
+        ]
+    },
+    {
+        "id": "d0159665937b355b",
+        "type": "ui_text",
+        "z": "a03162c3eeb113f1",
+        "group": "2e1a51a1bec22630",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Car License Number is",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1480,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "c3466873aca180a3",
+        "type": "ui_gauge",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "group": "2e1a51a1bec22630",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Parking Status",
+        "label": " Car",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 600,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "6a4311dcef18f990",
+        "type": "plate-recognizer",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "inputField": "payload",
+        "inputFieldType": "msg",
+        "outputField": "payload",
+        "outputFieldType": "msg",
+        "url": "https://api.platerecognizer.com/v1/plate-reader/",
+        "ignoreDuring": false,
+        "makeAndModel": false,
+        "statusText": "plates",
+        "cameraId": "",
+        "separateMsg": false,
+        "regionFilter": false,
+        "regionList": "",
+        "regionListType": "json",
+        "x": 1040,
+        "y": 160,
+        "wires": [
+            [
+                "6a28eb6b6d084730"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "3074ccc13bf368a3",
+        "type": "image",
+        "z": "a03162c3eeb113f1",
+        "name": "Show analyzed image",
+        "width": "400",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 1040,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "c2ce489ae7255820",
+        "type": "inject",
+        "z": "a03162c3eeb113f1",
+        "name": "Sensor-Detection",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "str",
+        "x": 180,
+        "y": 700,
+        "wires": [
+            [
+                "f3c909b17a246a0b"
+            ]
+        ]
+    },
+    {
+        "id": "883fb9764457151e",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set Status",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking2/Status",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 570,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f3c909b17a246a0b",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "if(msg.payload <= 15){\n    msg.payload = 1;\n\n    return msg;\n}\nif(msg.payload >15){\n    msg.payload = 0\n\n}\n\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 700,
+        "wires": [
+            [
+                "883fb9764457151e",
+                "483185f8fbfd6c1e",
+                "0d7fb6fe47b82f49",
+                "a7acc6621cda655f"
+            ]
+        ]
+    },
+    {
+        "id": "483185f8fbfd6c1e",
+        "type": "switch",
+        "z": "a03162c3eeb113f1",
+        "name": "Capture License",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 600,
+        "y": 680,
+        "wires": [
+            [
+                "e7072f267050b38d"
+            ],
+            [
+                "02321bffef2ee08a"
+            ]
+        ]
+    },
+    {
+        "id": "0d7fb6fe47b82f49",
+        "type": "ui_gauge",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "group": "2e1a51a1bec22630",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Parking Status",
+        "label": " Car",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 580,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "02321bffef2ee08a",
+        "type": "http request",
+        "z": "a03162c3eeb113f1",
+        "name": "car 2",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "https://car-images.bauersecure.com/wp-images/2697/bmwi4_029.jpg",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 790,
+        "y": 700,
+        "wires": [
+            [
+                "c84c6c157f070ee9",
+                "c6a6663a2c2b87b0"
+            ]
+        ]
+    },
+    {
+        "id": "f7fd46b59bd5764a",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "LPN_Parser",
+        "func": "msg.payload = msg.payload.results[0].plate.toUpperCase()\n\nvar date = new Date();\ndate = String(date)\ndate = date.slice(0,-31)\nmsg.LPN = \"Parking 1: Car with license number:\" + msg.payload +\" Parked at \" + date \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1210,
+        "y": 660,
+        "wires": [
+            [
+                "eb074919bf11a32f",
+                "2221da1adc0c1ef1",
+                "759dd4aa7534125e",
+                "e2ceca7f9c222e36"
+            ]
+        ]
+    },
+    {
+        "id": "e7072f267050b38d",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking2/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 790,
+        "y": 600,
+        "wires": [
+            [
+                "4888eca67cc8b339"
+            ]
+        ]
+    },
+    {
+        "id": "eb074919bf11a32f",
+        "type": "ui_text",
+        "z": "a03162c3eeb113f1",
+        "group": "2e1a51a1bec22630",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Car License Number is",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1440,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "c84c6c157f070ee9",
+        "type": "plate-recognizer",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "inputField": "payload",
+        "inputFieldType": "msg",
+        "outputField": "payload",
+        "outputFieldType": "msg",
+        "url": "https://api.platerecognizer.com/v1/plate-reader/",
+        "ignoreDuring": false,
+        "makeAndModel": false,
+        "statusText": "plates",
+        "cameraId": "",
+        "separateMsg": false,
+        "regionFilter": false,
+        "regionList": "",
+        "regionListType": "json",
+        "x": 1000,
+        "y": 660,
+        "wires": [
+            [
+                "f7fd46b59bd5764a"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "c6a6663a2c2b87b0",
+        "type": "image",
+        "z": "a03162c3eeb113f1",
+        "name": "Show analyzed image",
+        "width": "400",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 1000,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "4888eca67cc8b339",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "Empty Space",
+        "func": "msg.payload = \"EMPTY SPACE!\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1100,
+        "y": 600,
+        "wires": [
+            [
+                "eb074919bf11a32f"
+            ]
+        ]
+    },
+    {
+        "id": "a50ca2d02f0dfde0",
+        "type": "debug",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1570,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "f17ccf4e422331e6",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking1/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 1490,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "59a9bd3c599b5a50",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "\n\nmsg.payload = msg.LPN;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1560,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2221da1adc0c1ef1",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "\n\nmsg.payload = msg.LPN;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1520,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "759dd4aa7534125e",
+        "type": "debug",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1530,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "e2ceca7f9c222e36",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking2/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 1450,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "63472a9a09d113b8",
+        "type": "inject",
+        "z": "a03162c3eeb113f1",
+        "name": "Sensor-Detection",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "str",
+        "x": 180,
+        "y": 1200,
+        "wires": [
+            [
+                "f896f15d3422ca3b"
+            ]
+        ]
+    },
+    {
+        "id": "29601093388697ae",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set Status",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking3/Status",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 550,
+        "y": 1080,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f896f15d3422ca3b",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "if(msg.payload <= 15){\n    msg.payload = 1;\n\n    return msg;\n}\nif(msg.payload >15){\n    msg.payload = 0\n\n}\n\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 1200,
+        "wires": [
+            [
+                "29601093388697ae",
+                "b11176ef5eade7e8",
+                "96d1d0f701a8ffcd",
+                "22daeb2a741883cf"
+            ]
+        ]
+    },
+    {
+        "id": "b11176ef5eade7e8",
+        "type": "switch",
+        "z": "a03162c3eeb113f1",
+        "name": "Capture License",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 580,
+        "y": 1180,
+        "wires": [
+            [
+                "44c2e16812deae92"
+            ],
+            [
+                "ba533e8fdae9bf63"
+            ]
+        ]
+    },
+    {
+        "id": "96d1d0f701a8ffcd",
+        "type": "ui_gauge",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "group": "2e1a51a1bec22630",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Parking Status",
+        "label": " Car",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 560,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "ba533e8fdae9bf63",
+        "type": "http request",
+        "z": "a03162c3eeb113f1",
+        "name": "car 3",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "https://www.planetcarsz.com/img/noticias/2022/06/toyota-supra-30-twin-turbo-1996-01-20220615203001-1600x1066.jpg",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 770,
+        "y": 1200,
+        "wires": [
+            [
+                "75ed1c8a1b0d8abd",
+                "15c0c3fbaea15e0c"
+            ]
+        ]
+    },
+    {
+        "id": "44c2e16812deae92",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking3/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 770,
+        "y": 1100,
+        "wires": [
+            [
+                "ed03bd24a54f9e42"
+            ]
+        ]
+    },
+    {
+        "id": "afc6b3a88f0b1ed6",
+        "type": "inject",
+        "z": "a03162c3eeb113f1",
+        "name": "Sensor-Detection",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "2",
+        "payloadType": "str",
+        "x": 140,
+        "y": 1780,
+        "wires": [
+            [
+                "0456ed4a6e4fbdcf"
+            ]
+        ]
+    },
+    {
+        "id": "1356450b17406e75",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set Status",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking4/Status",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 510,
+        "y": 1660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0456ed4a6e4fbdcf",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "if(msg.payload <= 15){\n    msg.payload = 1;\n\n    return msg;\n}\nif(msg.payload >15){\n    msg.payload = 0\n\n}\n\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 1780,
+        "wires": [
+            [
+                "1356450b17406e75",
+                "e8a71df935ce0d68",
+                "26eb6c7391876efd",
+                "e44f49e73a8a5dfd"
+            ]
+        ]
+    },
+    {
+        "id": "e8a71df935ce0d68",
+        "type": "switch",
+        "z": "a03162c3eeb113f1",
+        "name": "Capture License",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 540,
+        "y": 1760,
+        "wires": [
+            [
+                "34f2aab9945dd465"
+            ],
+            [
+                "9ff02d35a0717761"
+            ]
+        ]
+    },
+    {
+        "id": "26eb6c7391876efd",
+        "type": "ui_gauge",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "group": "2e1a51a1bec22630",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Parking Status",
+        "label": " Car",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 520,
+        "y": 1840,
+        "wires": []
+    },
+    {
+        "id": "9ff02d35a0717761",
+        "type": "http request",
+        "z": "a03162c3eeb113f1",
+        "name": "car 4",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "https://media.gq-magazine.co.uk/photos/5ed0d86f3939aa76e28cf82e/16:9/pass/20200529-Jaguar-02.jpg",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 730,
+        "y": 1780,
+        "wires": [
+            [
+                "65e830cff47a22f5",
+                "6eb09d6af30d4068"
+            ]
+        ]
+    },
+    {
+        "id": "34f2aab9945dd465",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking4/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 730,
+        "y": 1680,
+        "wires": [
+            [
+                "f3917d25d8b5147c"
+            ]
+        ]
+    },
+    {
+        "id": "b6c72b010072db41",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "LPN_Parser",
+        "func": "msg.payload = msg.payload.results[0].plate.toUpperCase()\n\nvar date = new Date();\ndate = String(date)\ndate = date.slice(0,-31)\nmsg.LPN = \"Parking 1: Car with license number:\" + msg.payload +\" Parked at \" + date \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1210,
+        "y": 1180,
+        "wires": [
+            [
+                "5791c1c0af5d6434",
+                "e76c7b64a0fa0372",
+                "90077e7b890273af",
+                "2bc5758a7ac1ce9b"
+            ]
+        ]
+    },
+    {
+        "id": "5791c1c0af5d6434",
+        "type": "ui_text",
+        "z": "a03162c3eeb113f1",
+        "group": "2e1a51a1bec22630",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Car License Number is",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1440,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "75ed1c8a1b0d8abd",
+        "type": "plate-recognizer",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "inputField": "payload",
+        "inputFieldType": "msg",
+        "outputField": "payload",
+        "outputFieldType": "msg",
+        "url": "https://api.platerecognizer.com/v1/plate-reader/",
+        "ignoreDuring": false,
+        "makeAndModel": false,
+        "statusText": "plates",
+        "cameraId": "",
+        "separateMsg": false,
+        "regionFilter": false,
+        "regionList": "",
+        "regionListType": "json",
+        "x": 1000,
+        "y": 1180,
+        "wires": [
+            [
+                "b6c72b010072db41"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "15c0c3fbaea15e0c",
+        "type": "image",
+        "z": "a03162c3eeb113f1",
+        "name": "Show analyzed image",
+        "width": "400",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 1000,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "ed03bd24a54f9e42",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "Empty Space",
+        "func": "msg.payload = \"EMPTY SPACE!\"\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1100,
+        "y": 1120,
+        "wires": [
+            [
+                "5791c1c0af5d6434"
+            ]
+        ]
+    },
+    {
+        "id": "e76c7b64a0fa0372",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "\n\nmsg.payload = msg.LPN;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1520,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "90077e7b890273af",
+        "type": "debug",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1530,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "2bc5758a7ac1ce9b",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking3/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 1450,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "550b925531ef3b11",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "LPN_Parser",
+        "func": "msg.payload = msg.payload.results[0].plate.toUpperCase()\n\nvar date = new Date();\ndate = String(date)\ndate = date.slice(0,-31)\nmsg.LPN = \"Parking 1: Car with license number:\" + msg.payload +\" Parked at \" + date \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1150,
+        "y": 1760,
+        "wires": [
+            [
+                "f480c4c918928c1c",
+                "0b5f30b4c9cbd115",
+                "c8c5254d642ffa60",
+                "3decd9324733d7c2"
+            ]
+        ]
+    },
+    {
+        "id": "f480c4c918928c1c",
+        "type": "ui_text",
+        "z": "a03162c3eeb113f1",
+        "group": "2e1a51a1bec22630",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Car License Number is",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1380,
+        "y": 1880,
+        "wires": []
+    },
+    {
+        "id": "65e830cff47a22f5",
+        "type": "plate-recognizer",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "inputField": "payload",
+        "inputFieldType": "msg",
+        "outputField": "payload",
+        "outputFieldType": "msg",
+        "url": "https://api.platerecognizer.com/v1/plate-reader/",
+        "ignoreDuring": false,
+        "makeAndModel": false,
+        "statusText": "plates",
+        "cameraId": "",
+        "separateMsg": false,
+        "regionFilter": false,
+        "regionList": "",
+        "regionListType": "json",
+        "x": 940,
+        "y": 1760,
+        "wires": [
+            [
+                "550b925531ef3b11"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "6eb09d6af30d4068",
+        "type": "image",
+        "z": "a03162c3eeb113f1",
+        "name": "Show analyzed image",
+        "width": "400",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 940,
+        "y": 1840,
+        "wires": []
+    },
+    {
+        "id": "f3917d25d8b5147c",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "Empty Space",
+        "func": "msg.payload = \"EMPTY SPACE!\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 1700,
+        "wires": [
+            [
+                "f480c4c918928c1c"
+            ]
+        ]
+    },
+    {
+        "id": "0b5f30b4c9cbd115",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "func": "\n\nmsg.payload = msg.LPN;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1460,
+        "y": 1800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c8c5254d642ffa60",
+        "type": "debug",
+        "z": "a03162c3eeb113f1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1470,
+        "y": 1740,
+        "wires": []
+    },
+    {
+        "id": "3decd9324733d7c2",
+        "type": "firebase modify",
+        "z": "a03162c3eeb113f1",
+        "name": "Set License",
+        "firebaseconfig": "",
+        "childpath": "SmartParking/Parking4/License",
+        "method": "set",
+        "value": "msg.payload",
+        "priority": "msg.priority",
+        "x": 1390,
+        "y": 1680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d753e836b9126038",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "function 1",
+        "func": "var c1 = global.get(\"count\");\nc1+= msg.payload;\nglobal.set(\"count\",c1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 400,
+        "wires": [
+            [
+                "30e6bf74e76d1777"
+            ]
+        ]
+    },
+    {
+        "id": "22daeb2a741883cf",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "function 2",
+        "func": "var c1 = global.get(\"count\");\nc1 += msg.payload;\nglobal.set(\"count\", c1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 1360,
+        "wires": [
+            [
+                "30e6bf74e76d1777"
+            ]
+        ]
+    },
+    {
+        "id": "619818c2b3d593ad",
+        "type": "ui_text",
+        "z": "a03162c3eeb113f1",
+        "group": "2e1a51a1bec22630",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Occupied / 4:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1040,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "30e6bf74e76d1777",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "function 3",
+        "func": "msg.payload = global.get(\"count\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 940,
+        "wires": [
+            [
+                "619818c2b3d593ad"
+            ]
+        ]
+    },
+    {
+        "id": "a7acc6621cda655f",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "function 4",
+        "func": "var c1 = global.get(\"count\");\nc1 += msg.payload;\nglobal.set(\"count\", c1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 920,
+        "wires": [
+            [
+                "30e6bf74e76d1777"
+            ]
+        ]
+    },
+    {
+        "id": "e44f49e73a8a5dfd",
+        "type": "function",
+        "z": "a03162c3eeb113f1",
+        "name": "function 5",
+        "func": "var c1 = global.get(\"count\");\nc1 += msg.payload;\nglobal.set(\"count\", c1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 1540,
+        "wires": [
+            [
+                "30e6bf74e76d1777"
+            ]
+        ]
+    },
+    {
+        "id": "2e1a51a1bec22630",
+        "type": "ui_group",
+        "name": "SMP",
+        "tab": "9ab91faf9600eb31",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "9ab91faf9600eb31",
+        "type": "ui_tab",
+        "name": "Parking UI",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
